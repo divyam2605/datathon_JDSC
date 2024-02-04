@@ -50,5 +50,15 @@ class DysarthriaDetection(models.Model):
         return str(self.email)
 
 
+
+class PneumoniaDetection(models.Model):
+    email=models.ForeignKey(User,on_delete=models.CASCADE)
+    image=models.ImageField(upload_to="media/")
+    pneumonia=models.IntegerField()
+
+    def __str__(self):
+        return str(self.email)
+
+
         
 

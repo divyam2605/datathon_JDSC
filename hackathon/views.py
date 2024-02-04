@@ -13,6 +13,13 @@ from tensorflow.keras.models import load_model
 import os
 import pandas as pd
 import pickle
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from PIL import Image
+from tensorflow.keras.preprocessing import image
+#from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+import numpy as np
 
 # Create your views here.
 
@@ -105,4 +112,42 @@ def stroke_prediction(request):
         return JsonResponse("Not Stroke",safe=False)
 
 
+@csrf_exempt
+def pneumonia_prediction(request):
+    image_file = request.FILES.get("image")
 
+    # Use PIL to open the image
+    img = Image.open(image_file)
+
+    # Resize the image to the target size
+    img = img.resize((224, 224))
+
+    # Convert PIL image to NumPy array
+    img_array = np.array(img)
+
+    # Expand dimensions to match the model's expected input shape
+    img_array = np.expand_dims(img_array, axis=0)
+
+    # Preprocess the image for the model
+    img_array = preprocess_input(img_array)
+
+    # Load the model
+    model = load_model("D:\Datathon\datathon\hackathon\pneumonia2.h5")
+
+    # Make a prediction
+    prediction = model.predict(img_array)
+
+    # Print the prediction
+    possibility=prediction[0][0]
+
+    possibilty_integer=round(possibility)
+    print(possibilty_integer)
+
+    pneumonia_test=PneumoniaDetection(email=User.objects.get(email=request.user),image=image_file,pneumonia=possibilty_integer)
+
+    pneumonia_test.save()
+
+    if possibilty_integer==1:
+        return JsonResponse("Pneumonia",safe=False)
+    else:
+        return JsonResponse("Not a Pneumonia",safe=False)

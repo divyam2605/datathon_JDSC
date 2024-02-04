@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(User)
 admin.site.register(DysarthriaDetection)
 admin.site.register(StrokePrediction)
+admin.site.register(PneumoniaDetection)
